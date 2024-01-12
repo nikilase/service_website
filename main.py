@@ -7,6 +7,7 @@ from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse
 from pydantic import BaseModel
 
+
 app = FastAPI()
 templates = Jinja2Templates(directory="templates")
 
@@ -28,11 +29,11 @@ class Service(BaseModel):
     description: str
     service_name: str
     allow_functions: bool
-    status: Optional[str]
-    status_class: Optional[str]
+    status: Optional[str] = None
+    status_class: Optional[str] = None
 
     @classmethod
-    def new_service(cls, description: str, service_name: str, allow_functions: bool) -> 'Service':
+    def new_service(cls, description: str, service_name: str, allow_functions: bool):
         return Service(description=description, service_name=service_name, allow_functions=allow_functions)
 
     @classmethod
