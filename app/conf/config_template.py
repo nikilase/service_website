@@ -1,4 +1,4 @@
-from main import Service
+from app.schema.services import Service
 
 services_list = [
     Service.new_service("This Tool", "this_tool.service", True),
