@@ -7,6 +7,12 @@ from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse
 from pydantic import BaseModel
 
+try:
+    from app.conf.config import services_list
+except ImportError:
+    print("No custom config found!\nUsing template config!\nPlease configure your config in app/conf/config.py")
+    from app.conf.config import services_list
+
 
 app = FastAPI()
 templates = Jinja2Templates(directory="templates")
@@ -49,12 +55,7 @@ class Service(BaseModel):
         return False
 
 
-services_list = [
-    Service.new_service("This Tool", "this_tool.service", True),
-    Service.new_service("Motion Deamon", "motion.service", True),
-    Service.new_service("SSH Deamon", "sshd.service", False),
-    Service.new_service("Non Existent", "none", True)
-]
+
 
 
 @app.get("/", response_class=HTMLResponse)
