@@ -6,3 +6,7 @@ services_list = [
     Service.new_service("SSH Deamon", "sshd.service", False),
     Service.new_service("Non Existent", "none", True)
 ]
+
+SERVER_HOST = "0.0.0.0"
+SERVER_PORT = 8010
+SERVER_RELOAD = True

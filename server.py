@@ -2,6 +2,8 @@ import sys
 
 import uvicorn
 
+from app.conf.config import SERVER_HOST, SERVER_PORT, SERVER_RELOAD
+
 if __name__ == '__main__':
     if sys.version_info.major == 3 and sys.version_info.minor == 10:
         print("Python 3.10 in use, there may be some unknown behaviour as this app was only tested on Python 3.11.\n"
@@ -13,7 +15,7 @@ if __name__ == '__main__':
         sys.exit(1)
 
     uvicorn.run("main:app",
-                host="0.0.0.0",
-                port=8912,
-                reload=True,
+                host=SERVER_HOST,
+                port=SERVER_PORT,
+                reload=SERVER_RELOAD,
                 )
