@@ -1,6 +1,7 @@
+import asyncio
 import subprocess
 
-from fastapi import FastAPI, Request, HTTPException
+from fastapi import FastAPI, Request, HTTPException, WebSocket
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse
 
@@ -99,3 +100,39 @@ def print_last_log(request: Request, service: str):
         log = get_last_logs(service).decode("UTF-8")
         return templates.TemplateResponse("log.html", {"request": request, "output": log})
 
+
+# ToDo: Add the service to the javascript part
+@app.get("/api/live_log/{service}")
+def print_last_log(request: Request, service: str):
+    if Service.is_in_list(services_list, service):
+        return templates.TemplateResponse("log_ws.html", {"request": request, "service": service})
+
+
+@app.websocket("/api/live_log_ws/{service}")
+async def websocket_endpoint(websocket: WebSocket, service: str):
+    await websocket.accept()
+    try:
+        while True:
+            await asyncio.sleep(1)
+            logs = get_last_logs(service).decode("UTF-8")
+            log_lines = []
+            log_txt = ""
+            for log in logs.split("\n"):
+                if "ERROR" in log:
+                    log_txt += f'<span class="text-red-400">{log}</span><br/>\n'
+                elif "WARNING" in log:
+                    log_txt += f'<span class="text-orange-300">{log}</span><br/>\n'
+                elif "INFO" in log:
+                    log_txt += f'<span class="text-blue-400">{log}</span><br/>\n'
+                else:
+                    log_txt += f"{log}<br/>\n"
+
+            await websocket.send_text(log_txt)
+        while False:
+            process = subprocess.Popen(["journalctl", "-u", "servicewebsite.service", "-n 100", "-f"], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+            for line in iter(process.stdout.readline, b''):
+                await websocket.send_text(line.decode('utf8'))
+    except Exception as e:
+        print(e)
+    finally:
+        await websocket.close()

@@ -4,6 +4,7 @@ import uvicorn
 
 from app.conf.config import SERVER_HOST, SERVER_PORT, SERVER_RELOAD
 
+
 if __name__ == '__main__':
     if sys.version_info.major == 3 and sys.version_info.minor == 10:
         print("Python 3.10 in use, there may be some unknown behaviour as this app was only tested on Python 3.11.\n"
