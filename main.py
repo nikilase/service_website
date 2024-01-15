@@ -22,6 +22,12 @@ templates = Jinja2Templates(directory="templates")
 
 # ToDo: Add more granular control to allow_functions using AllowFunction Enum
 
+# ToDo: Add link to service (if service is webservice e.g. nodered/website)
+
+# ToDo: Maybe add install script for systemd? https://gist.github.com/ahmedsadman/2c1f118a02190c868b33c9c71835d706
+
+# ToDo: Add button to enable/disable service (automatic start of service) and show the enable status of the service
+
 
 @app.get("/", response_class=HTMLResponse)
 async def root(request: Request):
