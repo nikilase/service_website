@@ -14,7 +14,7 @@ if __name__ == '__main__':
         print("Python 3.10 or higher is required and Python 3.11 is recommended.")
         sys.exit(1)
 
-    uvicorn.run("main:app",
+    uvicorn.run("app.main:app",
                 host=SERVER_HOST,
                 port=SERVER_PORT,
                 reload=SERVER_RELOAD,
