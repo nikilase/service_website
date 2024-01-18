@@ -1,20 +1,23 @@
 import asyncio
 import logging
 import subprocess
+from typing import Tuple
 
 from fastapi import FastAPI, Request, HTTPException, WebSocket, Response, Depends, status
 from fastapi.security import OAuth2PasswordRequestForm
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi_users import fastapi_users, BaseUserManager, models
-from fastapi_users.authentication import Strategy
+from fastapi_users.authentication import Strategy, Authenticator
 from fastapi_users.router import ErrorCode
+from starlette.middleware.sessions import SessionMiddleware
+from urllib3.exceptions import RequestError
 
 from app.controller.logs import get_last_logs
 from app.controller.overview import service_handler, get_status
 from app.schema.services import Service
 from app.models.users.users import auth_backend, active_users, fastapi_users, admin_users, get_user_manager, \
-    get_jwt_strategy, optional_current_active_user
+    get_jwt_strategy, optional_current_active_user, RequiresLogin, current_user
 from app.schema.users import UserRead
 from app.models.users.sqlite import User
 
@@ -27,7 +30,7 @@ except ModuleNotFoundError:
 
 app = FastAPI()
 templates = Jinja2Templates(directory="templates")
-
+app.add_middleware(SessionMiddleware, secret_key="aZUDHqwdfhewufgqwfiawsfkl", max_age=None)
 # ToDo: Refactor in better structured project
 
 # ToDo: Implement Log with either a redirect/popup to a live version/last x lines of the log
@@ -41,17 +44,21 @@ templates = Jinja2Templates(directory="templates")
 # ToDo: Add button to enable/disable service (automatic start of service) and show the enable status of the service
 
 
-@app.get("/", response_class=HTMLResponse)
-async def root(request: Request, user = Depends(optional_current_active_user)):
+@app.exception_handler(HTTPException)
+async def require_login(request: Request, e : HTTPException):
+    if e.status_code == 401:
+        return RedirectResponse("/login", 303)
+    else:
+        print(f"Got Exception {e}")
+        return e
+
+
+@app.get("/log_overview")
+async def root(request: Request, user=Depends(active_users)):
     # body is a 2D list of [Service Description, Service Name, Allow Functions,  Service Status, Service Status Class]
     #Service.print_service_list(services_list)
 
-    if user is None:
-        print(user)
-        return RedirectResponse("/login")
-    else:
-        print(user.email)
-        return "SUCCESS"
+
     html_services_data: list[object] = []
     for service in services_list:
         status = get_status(service.service_name)
@@ -91,7 +98,7 @@ async def root(request: Request, user = Depends(optional_current_active_user)):
 
 
 @app.get("/api/service/{action}/{service}")
-async def service_api(action: str, service: str):
+async def service_api(action: str, service: str, user=Depends(active_users)):
     print(f"Just got a click from button {action} {service}")
 
     if Service.is_in_list(services_list, service):
@@ -110,7 +117,7 @@ async def service_api(action: str, service: str):
 
 
 @app.get("/api/last_log/{service}")
-def print_last_log(request: Request, service: str):
+def print_last_log(request: Request, service: str, user=Depends(active_users)):
     if Service.is_in_list(services_list, service):
         log = get_last_logs(service).decode("UTF-8")
         return templates.TemplateResponse("log.html", {"request": request, "output": log})
@@ -118,13 +125,13 @@ def print_last_log(request: Request, service: str):
 
 # ToDo: Add the service to the javascript part
 @app.get("/api/live_log/{service}")
-def print_last_log(request: Request, service: str):
+def print_last_log(request: Request, service: str, user=Depends(active_users)):
     if Service.is_in_list(services_list, service):
         return templates.TemplateResponse("log_ws.html", {"request": request, "service": service})
 
 
 @app.websocket("/api/live_log_ws/{service}")
-async def websocket_endpoint(websocket: WebSocket, service: str):
+async def websocket_endpoint(websocket: WebSocket, service: str, user=Depends(active_users)):
     await websocket.accept()
     try:
         while True:
@@ -157,10 +164,26 @@ async def websocket_endpoint(websocket: WebSocket, service: str):
 def login(request: Request):
     return templates.TemplateResponse("login.html", {"request": request})
 
-
-
 #app.include_router(fastapi_users.get_auth_router(auth_backend), prefix="", tags=["auth"])
 
+@app.post(
+        "/logout", name=f"auth:.logout"
+    )
+async def logout(
+        request: Request,
+        response: Response,
+        current_user: User = Depends(active_users)
+):
+    auth = Authenticator([auth_backend], get_user_manager(current_user))
+    user_token = auth.current_user_token(
+        active=True
+    )
+
+    await auth_backend.logout(auth_backend.get_strategy(), current_user, user_token)
+
+    x = RedirectResponse("/", status_code=status.HTTP_303_SEE_OTHER)
+    x.set_cookie(key="fastapiusersauth", value="", httponly=True, secure=True, max_age=0, expires=0)
+    return x
 
 
 @app.post("/login", name=f"auth:login",)
@@ -192,9 +215,15 @@ async def login(
 
     auth_token = await strategy.write_token(user)
 
-    resp = templates.TemplateResponse("login.html", {"request": request, "errors": ["SUCCESS!"]})
+    resp = RedirectResponse("/", status_code=status.HTTP_303_SEE_OTHER)
     resp.set_cookie(key="fastapiusersauth", value=auth_token, httponly=True, secure=True)
-    resp = await auth_backend.login(strategy, user)
-    await user_manager.on_after_login(user, request, resp)
 
     return resp
+
+
+
+@app.get("/", response_class=HTMLResponse)
+async def index(request: Request):
+    return templates.TemplateResponse("index.html", {"request": request})
+
+
