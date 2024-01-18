@@ -1,13 +1,22 @@
 import asyncio
+import logging
 import subprocess
 
-from fastapi import FastAPI, Request, HTTPException, WebSocket
+from fastapi import FastAPI, Request, HTTPException, WebSocket, Response, Depends, status
+from fastapi.security import OAuth2PasswordRequestForm
 from fastapi.templating import Jinja2Templates
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi_users import fastapi_users, BaseUserManager, models
+from fastapi_users.authentication import Strategy
+from fastapi_users.router import ErrorCode
 
 from app.controller.logs import get_last_logs
 from app.controller.overview import service_handler, get_status
 from app.schema.services import Service
+from app.models.users.users import auth_backend, active_users, fastapi_users, admin_users, get_user_manager, \
+    get_jwt_strategy, optional_current_active_user
+from app.schema.users import UserRead
+from app.models.users.sqlite import User
 
 try:
     from app.conf.config import services_list
@@ -33,10 +42,16 @@ templates = Jinja2Templates(directory="templates")
 
 
 @app.get("/", response_class=HTMLResponse)
-async def root(request: Request):
+async def root(request: Request, user = Depends(optional_current_active_user)):
     # body is a 2D list of [Service Description, Service Name, Allow Functions,  Service Status, Service Status Class]
     #Service.print_service_list(services_list)
 
+    if user is None:
+        print(user)
+        return RedirectResponse("/login")
+    else:
+        print(user.email)
+        return "SUCCESS"
     html_services_data: list[object] = []
     for service in services_list:
         status = get_status(service.service_name)
@@ -136,3 +151,50 @@ async def websocket_endpoint(websocket: WebSocket, service: str):
         print(e)
     finally:
         await websocket.close()
+
+
+@app.get("/login", tags=["auth"])
+def login(request: Request):
+    return templates.TemplateResponse("login.html", {"request": request})
+
+
+
+#app.include_router(fastapi_users.get_auth_router(auth_backend), prefix="", tags=["auth"])
+
+
+
+@app.post("/login", name=f"auth:login",)
+async def login(
+    request: Request,
+    credentials: OAuth2PasswordRequestForm = Depends(),
+    user_manager: BaseUserManager[models.UP, models.ID] = Depends(get_user_manager),
+    strategy: Strategy[models.UP, models.ID] = Depends(get_jwt_strategy),
+):
+    logging.getLogger('passlib').setLevel(logging.ERROR)
+    errors = []
+    user = await user_manager.authenticate(credentials)
+
+    if user is None or not user.is_active:
+        #raise HTTPException(
+        #    status_code=status.HTTP_400_BAD_REQUEST,
+        #    detail=ErrorCode.LOGIN_BAD_CREDENTIALS,
+        #)
+        errors.append("User does not exists or is not active")
+        return templates.TemplateResponse(
+            "login.html", {"request": request, "errors": errors}
+        )
+    requires_verification = False
+    if requires_verification and not user.is_verified:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=ErrorCode.LOGIN_USER_NOT_VERIFIED,
+        )
+
+    auth_token = await strategy.write_token(user)
+
+    resp = templates.TemplateResponse("login.html", {"request": request, "errors": ["SUCCESS!"]})
+    resp.set_cookie(key="fastapiusersauth", value=auth_token, httponly=True, secure=True)
+    resp = await auth_backend.login(strategy, user)
+    await user_manager.on_after_login(user, request, resp)
+
+    return resp
