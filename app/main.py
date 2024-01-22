@@ -1,7 +1,6 @@
 import asyncio
 import logging
 import subprocess
-from typing import Tuple
 
 from fastapi import FastAPI, Request, HTTPException, WebSocket, Response, Depends, status
 from fastapi.security import OAuth2PasswordRequestForm
@@ -11,15 +10,13 @@ from fastapi_users import fastapi_users, BaseUserManager, models
 from fastapi_users.authentication import Strategy, Authenticator
 from fastapi_users.router import ErrorCode
 from starlette.middleware.sessions import SessionMiddleware
-from urllib3.exceptions import RequestError
 
 from app.controller.logs import get_last_logs
 from app.controller.overview import service_handler, get_status
 from app.schema.services import Service
 from app.models.users.users import auth_backend, active_users, fastapi_users, admin_users, get_user_manager, \
     get_jwt_strategy, optional_current_active_user, RequiresLogin, current_user
-from app.schema.users import UserRead
-from app.models.users.sqlite import User
+from app.models.users.sqlite import User, create_db_and_tables
 
 try:
     from app.conf.config import services_list
@@ -42,6 +39,11 @@ app.add_middleware(SessionMiddleware, secret_key="aZUDHqwdfhewufgqwfiawsfkl", ma
 # ToDo: Maybe add install script for systemd? https://gist.github.com/ahmedsadman/2c1f118a02190c868b33c9c71835d706
 
 # ToDo: Add button to enable/disable service (automatic start of service) and show the enable status of the service
+
+
+@app.on_event("startup")
+async def startup_event(user_manager: BaseUserManager[models.UP, models.ID] = Depends(get_user_manager)):
+    await create_db_and_tables()
 
 
 @app.exception_handler(HTTPException)
@@ -181,8 +183,8 @@ async def logout(
 
     await auth_backend.logout(auth_backend.get_strategy(), current_user, user_token)
 
-    x = RedirectResponse("/", status_code=status.HTTP_303_SEE_OTHER)
-    x.set_cookie(key="fastapiusersauth", value="", httponly=True, secure=True, max_age=0, expires=0)
+    x = RedirectResponse("/login", status_code=status.HTTP_303_SEE_OTHER)
+    x.set_cookie(key="fastapiusersauth", value="", httponly=True, max_age=0, expires=0)
     return x
 
 
@@ -215,8 +217,8 @@ async def login(
 
     auth_token = await strategy.write_token(user)
 
-    resp = RedirectResponse("/", status_code=status.HTTP_303_SEE_OTHER)
-    resp.set_cookie(key="fastapiusersauth", value=auth_token, httponly=True, secure=True)
+    resp = RedirectResponse("/log_overview", status_code=status.HTTP_303_SEE_OTHER)
+    resp.set_cookie(key="fastapiusersauth", value=auth_token, httponly=True)
 
     return resp
 

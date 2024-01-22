@@ -1,12 +1,13 @@
 from fastapi import Depends
 from fastapi_users.db import SQLAlchemyBaseUserTableUUID, SQLAlchemyUserDatabase
-from sqlalchemy import Column, String
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine, async_sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
+import aiosqlite
 
+from app.conf.config import ADMIN_USER
 
 DATABASE_URL = "sqlite+aiosqlite:///app/models/users/users.db"
-
+DATABASE_URL_SQLITE = "app/models/users/users.db"
 Base = declarative_base()
 
 
@@ -21,6 +22,13 @@ async_session_maker = async_sessionmaker(engine, class_=AsyncSession, expire_on_
 async def create_db_and_tables():
 	async with engine.begin() as conn:
 		await conn.run_sync(Base.metadata.create_all)
+
+	async with aiosqlite.connect(DATABASE_URL_SQLITE) as conn:
+		values = (ADMIN_USER["UUID"], ADMIN_USER["email"], ADMIN_USER["hashed_pw"], ADMIN_USER["is_active"],
+				  ADMIN_USER["is_superuser"], ADMIN_USER["is_verified"])
+		await conn.execute("INSERT OR IGNORE INTO main.user (id, email, hashed_password, is_active, is_superuser, "
+						   "is_verified) VALUES(?, ?, ?, ?, ?, ?)", values)
+		await conn.commit()
 
 
 async def get_async_session_maker():
