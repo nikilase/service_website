@@ -2,7 +2,7 @@ from fastapi import FastAPI, Request, HTTPException, Depends
 from fastapi.responses import RedirectResponse
 
 
-from app.models.users.users import active_users
+from app.models.users.users import active_users, get_user_from_token_websocket
 from app.models.users.sqlite import create_db_and_tables
 from app.routers import api, auth, website_authenticated, website_unauthenticated, websocket
 
@@ -31,7 +31,7 @@ async def startup_event():
 
 @app.exception_handler(HTTPException)
 async def require_login(request: Request, e: HTTPException):
-    if e.status_code == 401:
+    if e.status_code == 401 and e.detail not in ("Unauthorized Websocket Access!",):
         print("Exception Handler Redirect")
         return RedirectResponse("/login", 303)
     else:
@@ -57,5 +57,6 @@ app.include_router(api.router,
 
 app.include_router(websocket.router,
                    prefix="/ws",
-                   tags=["websocket"]
+                   tags=["websocket"],
+                   dependencies=[Depends(get_user_from_token_websocket)]
                    )

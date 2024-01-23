@@ -9,6 +9,7 @@ router = APIRouter()
 
 @router.websocket("/live_log/{service}")
 async def websocket_endpoint(websocket: WebSocket, service: str):
+
     await websocket.accept()
     try:
         while True:

@@ -1,5 +1,5 @@
-from fastapi import Depends, Request, HTTPException
-from fastapi_users import BaseUserManager, FastAPIUsers, UUIDIDMixin
+from fastapi import Depends, Request, HTTPException, Cookie, status
+from fastapi_users import BaseUserManager, FastAPIUsers, UUIDIDMixin, models
 from fastapi_users.authentication import AuthenticationBackend, CookieTransport, JWTStrategy
 from fastapi_users.db import SQLAlchemyUserDatabase
 from app.models.users.sqlite import get_user_db
@@ -44,3 +44,11 @@ async def current_user():
 
 
 optional_current_active_user = fastapi_users.current_user(active=True, optional=True)
+
+
+async def get_user_from_token_websocket(fastapiusersauth: str = Cookie(None), user_manager: BaseUserManager[models.UP, models.ID] = Depends(get_user_manager),):
+	x = await get_jwt_strategy().read_token(fastapiusersauth, user_manager)
+
+	if x is None:
+		raise HTTPException(status_code=401, detail="Unauthorized Websocket Access!")
+	return x
