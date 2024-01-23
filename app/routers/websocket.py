@@ -1,4 +1,5 @@
 import asyncio
+import logging
 
 from fastapi import APIRouter, WebSocket
 
@@ -11,34 +12,52 @@ router = APIRouter()
 async def websocket_endpoint(websocket: WebSocket, service: str):
     await websocket.accept()
     log_size = 20
+    log_level = logging.INFO
+    log_level_include_others = True
 
     async def read_websocket(ws: WebSocket):
-        nonlocal log_size
+        nonlocal log_size, log_level, log_level_include_others
         # ws.iter_json() endlessly waits for messages
         async for message in ws.iter_json():
-            if message["type"] == "switch_log_size":
-                print("Received switch_log_size")
-                if log_size == 20:
-                    log_size = 40
-                else:
-                    log_size = 20
+            match message["type"]:
+                case "switch_log_size":
+                    print(f"Received switch_log_size {message['value']} {type(message['value'])}")
+                    log_size = int(message["value"])
+                case "switch_log_level":
+                    print(f"Received switch_log_level {message['value']} {type(message['value'])}")
+                    log_level = int(message["value"])
+                case "switch_log_level_inc":
+                    print(f"Received switch_log_level_inc {message['value']} {type(message['value'])}")
+                    log_level_include_others = message["value"]
 
     task = asyncio.create_task(read_websocket(websocket))
 
+    # ToDo: instead of throwing out wrong log level here, I need to add the log level into the get_last_logs function,
+    #  to let journalctl do the sorting for me? Otherwise Number of entries won't work correctly
     try:
         while True:
             await asyncio.sleep(1)
             logs = get_last_logs(service, log_size).decode("UTF-8")
             log_txt = ""
             for log in logs.split("\n"):
-                if "ERROR" in log:
-                    log_txt += f'<span class="text-red-400">{log}</span><br/>\n'
-                elif "WARNING" in log:
-                    log_txt += f'<span class="text-orange-300">{log}</span><br/>\n'
+                if "DEBUG" in log:
+                    if log_level <= logging.DEBUG:
+                        log_txt += f'<span class="text-blue-400">{log}</span><br/>\n'
                 elif "INFO" in log:
-                    log_txt += f'<span class="text-blue-400">{log}</span><br/>\n'
+                    if log_level <= logging.INFO:
+                        log_txt += f'<span class="text-cyan-400">{log}</span><br/>\n'
+                elif "WARNING" in log:
+                    if log_level <= logging.WARNING:
+                        log_txt += f'<span class="text-yellow-400">{log}</span><br/>\n'
+                elif "ERROR" in log:
+                    if log_level <= logging.ERROR:
+                        log_txt += f'<span class="text-orange-400">{log}</span><br/>\n'
+                elif "CRITICAL" in log:
+                    if log_level <= logging.CRITICAL:
+                        log_txt += f'<span class="text-red-400">{log}</span><br/>\n'
                 else:
-                    log_txt += f"{log}<br/>\n"
+                    if log_level_include_others:
+                        log_txt += f"{log}<br/>\n"
 
             await websocket.send_text(log_txt)
     except Exception as e:
