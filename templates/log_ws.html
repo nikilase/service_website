@@ -33,26 +33,25 @@
     </div>
 
     <script>
-      var loc = window.location, new_uri;
-      if (loc.protocol === "https:") {
+        let loc = window.location, new_uri;
+        if (loc.protocol === "https:") {
           new_uri = "wss:";
-      } else {
+        } else {
           new_uri = "ws:";
-      }
-      new_uri += "//" + loc.host;
-      new_uri += "/api/live_log_ws/{{service}}";
+        }
+        new_uri += "//" + loc.host;
+        new_uri += "/api/live_log_ws/{{service}}";
 
-      var ws_log = new WebSocket(new_uri);
+        let ws_log = new WebSocket(new_uri);
 
-      ws_log.onmessage = function (event) {
+        ws_log.onmessage = function (event) {
 
-       console.log(event.data);
+        console.log(event.data);
 
-       var logs = document.getElementById("logs");
-       var log_data = event.data;
-       logs.innerHTML = log_data;
+        let logs = document.getElementById("logs");
+        logs.innerHTML = event.data;
 
-      };
+        };
     </script>
   </body>
 </html>

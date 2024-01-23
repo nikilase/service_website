@@ -133,7 +133,7 @@ def print_last_log(request: Request, service: str, user=Depends(active_users)):
 
 
 @app.websocket("/api/live_log_ws/{service}")
-async def websocket_endpoint(websocket: WebSocket, service: str, user=Depends(active_users)):
+async def websocket_endpoint(websocket: WebSocket, service: str):
     await websocket.accept()
     try:
         while True:
