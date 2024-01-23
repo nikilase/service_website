@@ -21,13 +21,13 @@ async def websocket_endpoint(websocket: WebSocket, service: str):
         async for message in ws.iter_json():
             match message["type"]:
                 case "switch_log_size":
-                    print(f"Received switch_log_size {message['value']} {type(message['value'])}")
+                    #print(f"Received switch_log_size {message['value']} {type(message['value'])}")
                     log_size = int(message["value"])
                 case "switch_log_level":
-                    print(f"Received switch_log_level {message['value']} {type(message['value'])}")
+                    #print(f"Received switch_log_level {message['value']} {type(message['value'])}")
                     log_level = int(message["value"])
                 case "switch_log_level_inc":
-                    print(f"Received switch_log_level_inc {message['value']} {type(message['value'])}")
+                    #print(f"Received switch_log_level_inc {message['value']} {type(message['value'])}")
                     log_level_include_others = message["value"]
 
     task = asyncio.create_task(read_websocket(websocket))
