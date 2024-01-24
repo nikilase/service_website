@@ -10,6 +10,14 @@ services_list = [
 SERVER_HOST = "0.0.0.0"
 SERVER_PORT = 8010
 SERVER_RELOAD = True
+# e.g. ["*"] to allow any host, ["*.example.com"] to allow all from wildcard, ["*.example.com", "192.168.0.5"] or others
+ALLOWED_HOSTS = ["*"]
+# If enabled, the cookies will be set to secure so only https connections will work
+SECURE_ONLY = False
+# If using reverse Proxy like NGINX, you should enable allow proxy and set the IP adresses of the proxy
+# This enables the correct IP's in the log instead of the proxies IP
+ALLOW_PROXY = False
+PROXY_IPS = []
 
 ADMIN_USER = {"UUID": "4313186b-2795-4b63-afb9-edf9b5342b29",
               "email": "user@example.com",

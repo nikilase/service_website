@@ -7,6 +7,7 @@ from fastapi_users import BaseUserManager, models
 from fastapi_users.authentication import Strategy, Authenticator
 from fastapi_users.router import ErrorCode
 
+from app.conf.config import SECURE_ONLY
 from app.models.users.users import auth_backend, active_users, get_user_manager, get_jwt_strategy, current_user
 from app.models.users.sqlite import User
 from app.dependencies import templates
@@ -46,7 +47,7 @@ async def login(
     auth_token = await strategy.write_token(user)
 
     resp = RedirectResponse("/log_overview", status_code=status.HTTP_303_SEE_OTHER)
-    resp.set_cookie(key="fastapiusersauth", value=auth_token, httponly=True)
+    resp.set_cookie(key="fastapiusersauth", value=auth_token, httponly=True, secure=SECURE_ONLY)
 
     return resp
 
@@ -65,5 +66,5 @@ async def logout(
     await auth_backend.logout(auth_backend.get_strategy(), current_user, user_token)
 
     x = RedirectResponse("/login", status_code=status.HTTP_303_SEE_OTHER)
-    x.set_cookie(key="fastapiusersauth", value="", httponly=True, max_age=0, expires=0)
+    x.set_cookie(key="fastapiusersauth", value="", httponly=True, max_age=0, expires=0, secure=SECURE_ONLY)
     return x

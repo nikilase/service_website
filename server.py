@@ -2,8 +2,7 @@ import sys
 
 import uvicorn
 
-from app.conf.config import SERVER_HOST, SERVER_PORT, SERVER_RELOAD
-
+from app.conf.config import SERVER_HOST, SERVER_PORT, SERVER_RELOAD, ALLOW_PROXY, PROXY_IPS
 
 if __name__ == '__main__':
     if sys.version_info.major == 3 and sys.version_info.minor == 10:
@@ -19,4 +18,6 @@ if __name__ == '__main__':
                 host=SERVER_HOST,
                 port=SERVER_PORT,
                 reload=SERVER_RELOAD,
+                proxy_headers=ALLOW_PROXY,
+                forwarded_allow_ips=PROXY_IPS,
                 )
