@@ -57,7 +57,10 @@ async def websocket_endpoint(websocket: WebSocket, service: str):
                         log_txt += f'<span class="text-red-400">{log}</span><br/>\n'
                 else:
                     if log_level_include_others:
-                        log_txt += f"{log}<br/>\n"
+                        if "systemd" in log:
+                            log_txt += f'<span class="text-green-400">{log}</span><br/>\n'
+                        else:
+                            log_txt += f"{log}<br/>\n"
 
             await websocket.send_text(log_txt)
     except Exception as e:
