@@ -15,11 +15,13 @@ app.add_middleware(
 
 # ToDo: Add more granular control to allow_functions using AllowFunction Enum
 
-# ToDo: Add link to service (if service is webservice e.g. nodered/website)
+# ToDo: Add link to service (if service is webservice e.g. nodered/website) and more info e.g. ip/port etc.
 
 # ToDo: Maybe add install script for systemd? https://gist.github.com/ahmedsadman/2c1f118a02190c868b33c9c71835d706
 
 # ToDo: Add button to enable/disable service (automatic start of service) and show the enable status of the service
+
+# ToDo: Refresh of data in log_overview, instead of refreshing page just execute a JS Script that updates the Elements
 
 
 @app.on_event("startup")

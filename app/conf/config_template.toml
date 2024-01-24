@@ -26,19 +26,23 @@ is_verified = true
 name = "This Tool"
 service = "this_tool.service"
 allow_functions = true
+link = "https://some.domain.tld"
 
 [[services]]
 name = "Motion Deamon"
 service = "motion.service"
 allow_functions = true
+link = ""
 
 [[services]]
 name = "SSH Deamon"
 service = "sshd.service"
 allow_functions = false
+link = ""
 
 [[services]]
 name = "Non Existent"
 service = "none"
 allow_functions = true
+link = ""
 

@@ -18,6 +18,7 @@ services = config["services"]
 
 services_list = []
 for service in services:
+	url = service["link"] if service["link"] != "" else None
 	services_list.append(
-		Service.new_service(service["name"], service["service"], service["allow_functions"])
+		Service.new_service(service["name"], service["service"], service["allow_functions"], url)
 	)

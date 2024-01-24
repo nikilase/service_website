@@ -17,10 +17,11 @@ class Service(BaseModel):
     allow_functions: bool
     status: Optional[str] = None
     status_class: Optional[str] = None
+    url: Optional[str] = None
 
     @classmethod
-    def new_service(cls, description: str, service_name: str, allow_functions: bool):
-        return Service(description=description, service_name=service_name, allow_functions=allow_functions)
+    def new_service(cls, description: str, service_name: str, allow_functions: bool, url: Optional[str] = None):
+        return Service(description=description, service_name=service_name, allow_functions=allow_functions, url=url)
 
     @classmethod
     def print_service_list(cls, services: list['Service']) -> None:
