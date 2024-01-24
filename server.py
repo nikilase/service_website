@@ -1,23 +1,21 @@
 import sys
 
 import uvicorn
+from app.dependencies import server_config
 
-from app.conf.config import SERVER_HOST, SERVER_PORT, SERVER_RELOAD, ALLOW_PROXY, PROXY_IPS
 
 if __name__ == '__main__':
-    if sys.version_info.major == 3 and sys.version_info.minor == 10:
-        print("Python 3.10 in use, there may be some unknown behaviour as this app was only tested on Python 3.11.\n"
-              "It is recommended to run this script with Python 3.11 or higher.")
-    elif sys.version_info.major == 3 and sys.version_info.minor >= 11:
+    if sys.version_info.major == 3 and sys.version_info.minor >= 11:
         pass
     else:
-        print("Python 3.10 or higher is required and Python 3.11 is recommended.")
+        print("Python 3.11 or higher is required!")
         sys.exit(1)
+    print("Starting server...")
 
     uvicorn.run("app.main:app",
-                host=SERVER_HOST,
-                port=SERVER_PORT,
-                reload=SERVER_RELOAD,
-                proxy_headers=ALLOW_PROXY,
-                forwarded_allow_ips=PROXY_IPS,
+                host=server_config["host"],
+                port=server_config["port"],
+                reload=server_config["reload"],
+                proxy_headers=server_config["allow_proxy"],
+                forwarded_allow_ips=server_config["proxy_ips"],
                 )

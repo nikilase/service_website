@@ -1,7 +1,7 @@
 
 from fastapi import Request, APIRouter
 
-from app.conf.config import services_list
+from app.dependencies import services_list
 from app.controller.overview import get_status
 from app.dependencies import templates
 from app.schema.services import Service

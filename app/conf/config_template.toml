@@ -1,0 +1,44 @@
+# Configurations for the uvicorn server and cookie policy
+[server_config]
+host = "0.0.0.0"
+port = 8010
+reload = true
+# e.g. ["*"] to allow any host, ["*.example.com"] to allow all from wildcard, ["*.example.com", "192.168.0.5"] or others
+allowed_hosts = ["*"]
+# If enabled, the cookies will be set to secure so only https connections will work
+secure_only = false
+# If using reverse Proxy like NGINX, you should enable allow proxy and set the IP adresses of the proxy
+# This enables the correct IP's in the log instead of the proxies IP
+allow_proxy = false
+proxy_ips = []
+
+# Initial Admin User if no SQLite DB was found
+[admin_user]
+UUID = "4313186b-2795-4b63-afb9-edf9b5342b29"
+email = "user@example.com"
+hashed_pw = "$2b$12$O/h0NrQva4BsL3vG.sxSDeSjpZhL5kAl5KdU/1oau0c7qohX5Whw2"
+is_active = true
+is_superuser = true
+is_verified = true
+
+# Array of the Services
+[[services]]
+name = "This Tool"
+service = "this_tool.service"
+allow_functions = true
+
+[[services]]
+name = "Motion Deamon"
+service = "motion.service"
+allow_functions = true
+
+[[services]]
+name = "SSH Deamon"
+service = "sshd.service"
+allow_functions = false
+
+[[services]]
+name = "Non Existent"
+service = "none"
+allow_functions = true
+

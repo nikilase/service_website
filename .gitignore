@@ -6,7 +6,7 @@
 __pycache__
 venv
 .venv
-app/conf/config.py
+app/conf/config.toml
 *.db
 
 # User-specific stuff

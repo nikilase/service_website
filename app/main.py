@@ -5,18 +5,12 @@ from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from app.models.users.users import active_users, get_user_from_token_websocket
 from app.models.users.sqlite import create_db_and_tables
 from app.routers import api, auth, website_authenticated, website_unauthenticated, websocket
-
-try:
-    from app.conf.config import services_list, ALLOWED_HOSTS
-except ModuleNotFoundError:
-    print("No custom config found!\nUsing template config!\nPlease configure your config in app/conf/config.py")
-    from app.conf.config_template import services_list, ALLOWED_HOSTS
-
+from app.dependencies import server_config
 
 app = FastAPI()
 
 app.add_middleware(
-    TrustedHostMiddleware, allowed_hosts=ALLOWED_HOSTS
+    TrustedHostMiddleware, allowed_hosts=server_config["allowed_hosts"]
 )
 
 # ToDo: Add more granular control to allow_functions using AllowFunction Enum

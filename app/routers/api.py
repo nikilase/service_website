@@ -1,6 +1,6 @@
 from fastapi import Request, HTTPException, APIRouter
 
-from app.conf.config import services_list
+from app.dependencies import services_list
 from app.controller.logs import get_last_logs
 from app.controller.overview import service_handler
 from app.dependencies import templates

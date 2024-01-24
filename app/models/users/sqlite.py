@@ -4,7 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine, async_sess
 from sqlalchemy.ext.declarative import declarative_base
 import aiosqlite
 
-from app.conf.config import ADMIN_USER
+from app.dependencies import admin_config as ADMIN_USER
 
 DATABASE_URL = "sqlite+aiosqlite:///app/models/users/users.db"
 DATABASE_URL_SQLITE = "app/models/users/users.db"

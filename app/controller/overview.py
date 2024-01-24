@@ -1,7 +1,7 @@
 import subprocess
 
-from app.conf.config import services_list
 from app.schema.services import Service
+from app.dependencies import services_list
 
 
 def get_status(service: str):
