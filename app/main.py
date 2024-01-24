@@ -1,5 +1,5 @@
 from fastapi import FastAPI, Request, HTTPException, Depends
-from fastapi.responses import RedirectResponse
+from fastapi.responses import RedirectResponse, Response
 
 
 from app.models.users.users import active_users, get_user_from_token_websocket
@@ -34,6 +34,8 @@ async def require_login(request: Request, e: HTTPException):
     if e.status_code == 401 and e.detail not in ("Unauthorized Websocket Access!",):
         print("Exception Handler Redirect")
         return RedirectResponse("/login", 303)
+    elif e.status_code == 200:
+        return Response(status_code=200, headers=e.headers, content=e.detail)
     else:
         print(f"Got Exception {e}")
         return e
