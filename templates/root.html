@@ -62,21 +62,23 @@
 
                         <td>
                             {% if service['allow_functions'] %}
-                            <button type="button" class="btn btn-primary btn-sm" onclick="restart_service(this.name)" id="restart_{{service['service_name']}}" name="{{service['service_name']}}" style="height: 32px">
-                                Restart
-                            </button>
-                            <button type="button" class="btn btn-primary btn-sm" onclick="start_service(this.name)" id="start_{{service['service_name']}}" name="{{service['service_name']}}" style="height: 32px">
-                                Start
-                            </button>
-                            <button type="button" class="btn btn-primary btn-sm" onclick="stop_service(this.name)" id="stop_{{service['service_name']}}" name="{{service['service_name']}}" style="height: 32px">
-                                Stop
-                            </button>
-                            <button type="button" class="btn btn-primary btn-sm" onclick="enable_service(this.name)" id="enable_{{service['service_name']}}" name="{{service['service_name']}}" style="height: 32px">
-                                Enable
-                            </button>
-                            <button type="button" class="btn btn-primary btn-sm" onclick="disable_service(this.name)" id="disable_{{service['service_name']}}" name="{{service['service_name']}}" style="height: 32px">
-                                Disable
-                            </button>
+                                <button type="button" class="btn btn-primary btn-sm" onclick="restart_service(this.name)" id="restart_{{service['service_name']}}" name="{{service['service_name']}}" style="height: 32px">
+                                    Restart
+                                </button>
+                                <button type="button" class="btn btn-primary btn-sm" onclick="start_service(this.name)" id="start_{{service['service_name']}}" name="{{service['service_name']}}" style="height: 32px">
+                                    Start
+                                </button>
+                                <button type="button" class="btn btn-primary btn-sm" onclick="stop_service(this.name)" id="stop_{{service['service_name']}}" name="{{service['service_name']}}" style="height: 32px">
+                                    Stop
+                                </button>
+                                <button type="button" class="btn btn-primary btn-sm" onclick="enable_service(this.name)" id="enable_{{service['service_name']}}" name="{{service['service_name']}}" style="height: 32px">
+                                    Enable
+                                </button>
+                                <button type="button" class="btn btn-primary btn-sm" onclick="disable_service(this.name)" id="disable_{{service['service_name']}}" name="{{service['service_name']}}" style="height: 32px">
+                                    Disable
+                                </button>
+                            {% else %}
+                                <div style="height: 32px"></div>
                             {% endif %}
                         </td>
                         <td><a href="/api/last_log/{{service['service_name']}}" target="_blank" rel="noopener noreferrer">Log</a>
