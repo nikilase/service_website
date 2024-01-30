@@ -17,6 +17,7 @@ class Service(BaseModel):
     allow_functions: bool
     status: Optional[str] = None
     status_class: Optional[str] = None
+    enabled: Optional[str] = None
     url: Optional[str] = None
 
     @classmethod

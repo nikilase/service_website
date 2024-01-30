@@ -29,13 +29,16 @@
             <main>
                 <table style="width:100%">
                     <tr>
-                        <th style="width:50%">
+                        <th style="width:35%">
                             Service Name
                         </th>
-                        <th style="width:20%">
+                        <th style="width:15%">
+                            Service Enabled
+                        </th>
+                        <th style="width:15%">
                             Service State
                         </th>
-                        <th style="width:20%">
+                        <th style="width:25%">
                             Functions
                         </th>
                         <th style="width:10%">
@@ -45,23 +48,34 @@
 
                     {% for service in services %}
                     <tr>
-                        <td>{{service['description']}}</td>
+                        <td>{% if service['url'] %} <a href="{{ service['url'] }}">{{service['description']}}</a> {% else %} {{service['description']}} {% endif %}</td>
+                        <td><div class="service_{{service['enabled']}}" style="width: 100px; padding-right: 20px; padding-left: 20px; border: 1px solid gray">
+                            {{service['enabled']}}
+                        </div>
+
+                        </td>
                         <td>
-                            <div class="{{service['status_class']}}" style="width: fit-content; padding-right: 20px; padding-left: 20px; border: 1px solid gray">
+                            <div class="{{service['status_class']}}" style="width: 100px; padding-right: 20px; padding-left: 20px; border: 1px solid gray">
                                 {{service['status']}}
                             </div>
                         </td>
 
                         <td>
                             {% if service['allow_functions'] %}
-                            <button type="button" class="btn btn-primary btn-sm" onclick="restart_service(this.name)" id="restart_{{service['service_name']}}" name="{{service['service_name']}}">
+                            <button type="button" class="btn btn-primary btn-sm" onclick="restart_service(this.name)" id="restart_{{service['service_name']}}" name="{{service['service_name']}}" style="height: 32px">
                                 Restart
                             </button>
-                            <button type="button" class="btn btn-primary btn-sm" onclick="start_service(this.name)" id="start_{{service['service_name']}}" name="{{service['service_name']}}">
+                            <button type="button" class="btn btn-primary btn-sm" onclick="start_service(this.name)" id="start_{{service['service_name']}}" name="{{service['service_name']}}" style="height: 32px">
                                 Start
                             </button>
-                            <button type="button" class="btn btn-primary btn-sm" onclick="stop_service(this.name)" id="stop_{{service['service_name']}}" name="{{service['service_name']}}">
+                            <button type="button" class="btn btn-primary btn-sm" onclick="stop_service(this.name)" id="stop_{{service['service_name']}}" name="{{service['service_name']}}" style="height: 32px">
                                 Stop
+                            </button>
+                            <button type="button" class="btn btn-primary btn-sm" onclick="enable_service(this.name)" id="enable_{{service['service_name']}}" name="{{service['service_name']}}" style="height: 32px">
+                                Enable
+                            </button>
+                            <button type="button" class="btn btn-primary btn-sm" onclick="disable_service(this.name)" id="disable_{{service['service_name']}}" name="{{service['service_name']}}" style="height: 32px">
+                                Disable
                             </button>
                             {% endif %}
                         </td>
@@ -98,6 +112,16 @@
     {
 
         $.get("/api/service/stop/"+id);
+    }
+    function enable_service(id)
+    {
+
+        $.get("/api/service/enable/"+id);
+    }
+    function disable_service(id)
+    {
+
+        $.get("/api/service/disable/"+id);
     }
 
 

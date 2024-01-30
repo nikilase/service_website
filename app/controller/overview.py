@@ -18,10 +18,18 @@ def get_status(service: str):
         else:
             return None
     finally:
+        status = None
+        active_status = None
+        enabled = None
+
         return_lines = command_return.split("\n")
         for line in return_lines:
             line = [elem.lstrip() for elem in line.split(":", maxsplit=1)]
             line_header = line[0]
+
+            if line_header == "loaded":
+                line_values = line[1].split(" ")
+                enabled = line_values[2].replace(";", "")
 
             # Go through all lines of the status page until we have the active status
             if line_header == "active":
@@ -30,7 +38,7 @@ def get_status(service: str):
                 active_status = ""
                 if status == "active":
                     active_status = line_values[1]
-                return status, active_status
+        return status, active_status, enabled
 
 
 def service_exists(service: str):
@@ -66,6 +74,10 @@ def service_handler(service_name, handle_type):
                 subprocess.check_output(["sudo", "systemctl", "restart", service_name])
             case "stop":
                 subprocess.check_output(["sudo", "systemctl", "stop", service_name])
+            case "enable":
+                subprocess.check_output(["sudo", "systemctl", "enable", service_name])
+            case "disable":
+                subprocess.check_output(["sudo", "systemctl", "disable", service_name])
             case _:
                 print(f"Incorrect Command {handle_type}")
     except subprocess.CalledProcessError as e:

@@ -15,11 +15,7 @@ async def service_api(action: str, service: str):
 
     if Service.is_in_list(services_list, service):
         match action:
-            case "start":
-                service_handler(service, action)
-            case "restart":
-                service_handler(service, action)
-            case "stop":
+            case "start" | "restart" | "stop" | "enable" | "disable":
                 service_handler(service, action)
             case _:
                 raise HTTPException(status_code=400, detail="Wrong action provided")

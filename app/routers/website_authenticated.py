@@ -33,16 +33,17 @@ async def root(request: Request):
                             service.status_class = "service_running"
                 case "inactive":
                     service.status = (status[0])
-                    service.status_class = "service_disabled"
+                    service.status_class = "service_inactive"
                 case "enabled":
                     service.status = (status[0])
-                    service.status_class = "service_running"
+                    service.status_class = "service_enabled"
                 case "disabled":
                     service.status = (status[0])
                     service.status_class = "service_disabled"
                 case _:
                     service.status = (status[0])
                     service.status_class = "service_disabled"
+            service.enabled = status[2]
 
         html_services_data.append(service.dict())
 
