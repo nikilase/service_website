@@ -37,7 +37,7 @@ async def websocket_endpoint(websocket: WebSocket, service: str):
     try:
         while True:
             await asyncio.sleep(1)
-            logs = get_last_logs(service, log_size).decode("UTF-8")
+            logs = await get_last_logs(service, log_size)
             log_txt = ""
             for log in logs.split("\n"):
                 if "DEBUG" in log:

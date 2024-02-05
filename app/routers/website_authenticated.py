@@ -1,4 +1,3 @@
-
 from fastapi import Request, APIRouter
 
 from app.dependencies import services_list
@@ -13,7 +12,7 @@ router = APIRouter()
 async def root(request: Request):
     html_services_data: list[object] = []
     for service in services_list:
-        status = get_status(service.service_name)
+        status = await get_status(service.service_name)
 
         if status is None:
             service.status = "not found"

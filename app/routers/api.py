@@ -16,7 +16,7 @@ async def service_api(action: str, service: str):
     if Service.is_in_list(services_list, service):
         match action:
             case "start" | "restart" | "stop" | "enable" | "disable":
-                service_handler(service, action)
+                await service_handler(service, action)
             case _:
                 raise HTTPException(status_code=400, detail="Wrong action provided")
     else:
@@ -25,7 +25,7 @@ async def service_api(action: str, service: str):
 
 
 @router.get("/last_log/{service}")
-def print_last_log(request: Request, service: str):
+async def print_last_log(request: Request, service: str):
     if Service.is_in_list(services_list, service):
-        log = get_last_logs(service).decode("UTF-8")
+        log = await get_last_logs(service)
         return templates.TemplateResponse("log.html", {"request": request, "output": log})
