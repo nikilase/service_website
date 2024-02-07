@@ -1,5 +1,6 @@
 from fastapi import FastAPI, Request, HTTPException, Depends
 from fastapi.responses import RedirectResponse, Response
+from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
 
 from app.models.users.users import active_users, get_user_from_token_websocket
@@ -40,6 +41,8 @@ async def require_login(request: Request, e: HTTPException):
         print(f"Got Exception {e}")
         return e
 
+
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 app.include_router(website_unauthenticated.router)
 
