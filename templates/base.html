@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-bs-theme="dark">
 <head>
     <title>
         {% block title %}
@@ -30,18 +30,8 @@
     <meta name="theme-color" content="#7952b3">
 
     <style>
-        /*table {
-            border-collapse: collapse;
-            width: 100%;
-        }
-
-        th, td {
-            text-align: left;
-            padding: 8px;
-        }*/
-
         tr{
-            background-color: #2c2c2c;
+            background-color: #343a40;
         }
 
         .service_not_found {
@@ -81,10 +71,6 @@
             font-size: inherit;
         }
 
-        body {
-            color: #E6E0E9;
-            background-color: #121212;
-        }
         .form-control {
             color: #E6E0E9;
             background-color: #383838;
@@ -100,19 +86,18 @@
 </head>
 
 <body>
-
+{% block navbar %}
     <header class="header">
-
-        <nav class="navbar navbar-dark bg-dark" style="padding: 10px">
+        <nav class="navbar navbar-dark bg-body-tertiary" style="padding: 10px">
             <a href="/" class="nav__link">
                 Home
             </a>
             <a href="/log_overview" class="nav__link">
-                Logs
+                Log Overview
             </a>
         {% if request.cookies["fastapiusersauth"] %}
             <form action="/logout" method="post">
-                <button type="submit" name="your_name" value="your_value" class="btn-link">Logout</button>
+                <button type="submit" name="your_name" value="your_value" class="btn-link" style="color: #6EA8FE">Logout</button>
             </form>
             {% else %}
             <a href="/login" class="nav__link">
@@ -122,6 +107,7 @@
 
         </nav>
     </header>
+{% endblock %}
 
     {% block content %}
     {% endblock %}

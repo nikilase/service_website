@@ -42,23 +42,23 @@ async def websocket_endpoint(websocket: WebSocket, service: str):
             for log in logs.split("\n"):
                 if "DEBUG" in log:
                     if log_level <= logging.DEBUG:
-                        log_txt += f'<span class="text-blue-400">{log}</span><br/>\n'
+                        log_txt += f'<span style="color: #60A5FA">{log}</span><br/>\n'
                 elif "INFO" in log:
                     if log_level <= logging.INFO:
-                        log_txt += f'<span class="text-cyan-400">{log}</span><br/>\n'
+                        log_txt += f'<span style="color: #22D3EE">{log}</span><br/>\n'
                 elif "WARNING" in log:
                     if log_level <= logging.WARNING:
-                        log_txt += f'<span class="text-yellow-400">{log}</span><br/>\n'
+                        log_txt += f'<span style="color: #FACC15">{log}</span><br/>\n'
                 elif "ERROR" in log:
                     if log_level <= logging.ERROR:
-                        log_txt += f'<span class="text-orange-400">{log}</span><br/>\n'
+                        log_txt += f'<span style="color: #FB923C">{log}</span><br/>\n'
                 elif "CRITICAL" in log:
                     if log_level <= logging.CRITICAL:
-                        log_txt += f'<span class="text-red-400">{log}</span><br/>\n'
+                        log_txt += f'<span style="color: #F87171">{log}</span><br/>\n'
                 else:
                     if log_level_include_others:
                         if "systemd" in log:
-                            log_txt += f'<span class="text-green-400">{log}</span><br/>\n'
+                            log_txt += f'<span style="color: #4ADE80">{log}</span><br/>\n'
                         else:
                             log_txt += f"{log}<br/>\n"
 
