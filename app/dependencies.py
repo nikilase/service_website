@@ -20,5 +20,5 @@ services_list = []
 for service in services:
 	url = service["link"] if service["link"] != "" else None
 	services_list.append(
-		Service.new_service(service["name"], service["service"], service["allow_functions"], url)
+		Service.new_service(service["name"], service["service"], service["allow_functions"], url, service["append_line"])
 	)

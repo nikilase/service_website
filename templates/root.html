@@ -45,6 +45,11 @@
                             Log
                         </th>
                     </tr>
+                    <tr>
+                        <td colspan="5" style="height: 5px;">
+                            <hr style="margin-bottom: 5px; margin-top: 0"/>
+                        </td>
+                     </tr>
 
                     {% for service in services %}
                     <tr>
@@ -92,15 +97,24 @@
                         </td>
                         <td><a href="/api/last_log/{{service['service_name']}}" target="_blank" rel="noopener noreferrer">Log</a>
                         <a href="/live_log/{{service['service_name']}}" target="_blank" rel="noopener noreferrer">Live Log</a></td>
-
                     </tr>
 
+                    {% if service['append_line'] %}
+                     <tr>
+                        <td colspan="5"><hr/></td>
+                     </tr>
+                    {% endif %}
                     {% endfor %}
                 </table>
             </main>
         </main>
 
-
+<style>
+    hr {
+        margin-top: 5px;
+        margin-bottom: 5px;
+    }
+</style>
 
 <script>
     // When page has loaded
