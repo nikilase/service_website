@@ -19,6 +19,10 @@ services = config["services"]
 services_list = []
 for service in services:
 	url = service["link"] if service["link"] != "" else None
+	try:
+		append_lines = service["append_line"]
+	except KeyError:
+		append_lines = False
 	services_list.append(
-		Service.new_service(service["name"], service["service"], service["allow_functions"], url, service["append_line"])
+		Service.new_service(service["name"], service["service"], service["allow_functions"], url, )
 	)
