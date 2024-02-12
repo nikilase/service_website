@@ -24,5 +24,5 @@ for service in services:
 	except KeyError:
 		append_lines = False
 	services_list.append(
-		Service.new_service(service["name"], service["service"], service["allow_functions"], url, )
+		Service.new_service(service["name"], service["service"], service["allow_functions"], url, append_lines)
 	)
