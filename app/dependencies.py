@@ -17,6 +17,7 @@ except FileNotFoundError:
         config = tomllib.load(f)
 
 server_config = config["server_config"]
+other_config = config["other_config"]
 admin_config = config["admin_user"]
 services = config["services"]
 

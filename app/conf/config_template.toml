@@ -12,6 +12,11 @@ secure_only = false
 allow_proxy = false
 proxy_ips = []
 
+# Other configurations
+[other_config]
+# Secret used to encrypt fastapi user JWST Token. Set to a secure string and don't share with anyone!
+fastapi-secret = "SECRET"
+
 # Initial Admin User if no SQLite DB was found
 [admin_user]
 UUID = "4313186b-2795-4b63-afb9-edf9b5342b29"

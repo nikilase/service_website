@@ -7,10 +7,11 @@ from fastapi_users.authentication import (
 )
 from fastapi_users.db import SQLAlchemyUserDatabase
 
+from app.dependencies import other_config
 from app.models.users.sqlite import get_user_db
 
 # ToDo: get more info on proper Secrets
-SECRET = "mysecret"
+SECRET = other_config["SECRET"]
 
 
 class UserManager(UUIDIDMixin, BaseUserManager):
