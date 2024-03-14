@@ -4,7 +4,7 @@ import bcrypt
 password = input("Enter your password: ")
 
 # converting password to array of bytes
-pw_bytes = password.encode('utf-8')
+pw_bytes = password.encode("utf-8")
 
 # generating the salt
 salt = bcrypt.gensalt()

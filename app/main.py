@@ -1,18 +1,22 @@
-from fastapi import FastAPI, Request, HTTPException, Depends
+from fastapi import Depends, FastAPI, HTTPException, Request
+from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from fastapi.responses import RedirectResponse, Response
 from fastapi.staticfiles import StaticFiles
-from fastapi.middleware.trustedhost import TrustedHostMiddleware
 
-from app.models.users.users import active_users, get_user_from_token_websocket
-from app.models.users.sqlite import create_db_and_tables
-from app.routers import api, auth, website_authenticated, website_unauthenticated, websocket
 from app.dependencies import server_config
+from app.models.users.sqlite import create_db_and_tables
+from app.models.users.users import active_users, get_user_from_token_websocket
+from app.routers import (
+    api,
+    auth,
+    website_authenticated,
+    website_unauthenticated,
+    websocket,
+)
 
 app = FastAPI()
 
-app.add_middleware(
-    TrustedHostMiddleware, allowed_hosts=server_config["allowed_hosts"]
-)
+app.add_middleware(TrustedHostMiddleware, allowed_hosts=server_config["allowed_hosts"])
 
 # ToDo: Add more granular control to allow_functions using AllowFunction Enum
 
@@ -46,22 +50,17 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 
 app.include_router(website_unauthenticated.router)
 
-app.include_router(auth.router,
-                   tags=["auth"]
-                   )
+app.include_router(auth.router, tags=["auth"])
 
-app.include_router(website_authenticated.router,
-                   dependencies=[Depends(active_users)]
-                   )
+app.include_router(website_authenticated.router, dependencies=[Depends(active_users)])
 
-app.include_router(api.router,
-                   prefix="/api",
-                   tags=["api"],
-                   dependencies=[Depends(active_users)]
-                   )
+app.include_router(
+    api.router, prefix="/api", tags=["api"], dependencies=[Depends(active_users)]
+)
 
-app.include_router(websocket.router,
-                   prefix="/ws",
-                   tags=["websocket"],
-                   dependencies=[Depends(get_user_from_token_websocket)]
-                   )
+app.include_router(
+    websocket.router,
+    prefix="/ws",
+    tags=["websocket"],
+    dependencies=[Depends(get_user_from_token_websocket)],
+)

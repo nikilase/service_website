@@ -1,16 +1,21 @@
 import logging
 
-from fastapi import Request, HTTPException, Depends, status, APIRouter
-from fastapi.security import OAuth2PasswordRequestForm
+from fastapi import APIRouter, Depends, HTTPException, Request, status
 from fastapi.responses import RedirectResponse
+from fastapi.security import OAuth2PasswordRequestForm
 from fastapi_users import BaseUserManager, models
-from fastapi_users.authentication import Strategy, Authenticator
+from fastapi_users.authentication import Authenticator, Strategy
 from fastapi_users.router import ErrorCode
 
-from app.dependencies import server_config
-from app.models.users.users import auth_backend, active_users, get_user_manager, get_jwt_strategy, current_user
+from app.dependencies import server_config, templates
 from app.models.users.sqlite import User
-from app.dependencies import templates
+from app.models.users.users import (
+    active_users,
+    auth_backend,
+    current_user,
+    get_jwt_strategy,
+    get_user_manager,
+)
 
 router = APIRouter()
 
@@ -20,14 +25,17 @@ def login(request: Request):
     return templates.TemplateResponse("login.html", {"request": request})
 
 
-@router.post("/login", name=f"auth:login",)
+@router.post(
+    "/login",
+    name=f"auth:login",
+)
 async def login(
-        request: Request,
-        credentials: OAuth2PasswordRequestForm = Depends(),
-        user_manager: BaseUserManager[models.UP, models.ID] = Depends(get_user_manager),
-        strategy: Strategy[models.UP, models.ID] = Depends(get_jwt_strategy),
+    request: Request,
+    credentials: OAuth2PasswordRequestForm = Depends(),
+    user_manager: BaseUserManager[models.UP, models.ID] = Depends(get_user_manager),
+    strategy: Strategy[models.UP, models.ID] = Depends(get_jwt_strategy),
 ):
-    logging.getLogger('passlib').setLevel(logging.ERROR)
+    logging.getLogger("passlib").setLevel(logging.ERROR)
     errors = []
     user = await user_manager.authenticate(credentials)
 
@@ -47,25 +55,30 @@ async def login(
     auth_token = await strategy.write_token(user)
 
     resp = RedirectResponse("/log_overview", status_code=status.HTTP_303_SEE_OTHER)
-    resp.set_cookie(key="fastapiusersauth", value=auth_token, httponly=True, secure=server_config["secure_only"])
+    resp.set_cookie(
+        key="fastapiusersauth",
+        value=auth_token,
+        httponly=True,
+        secure=server_config["secure_only"],
+    )
 
     return resp
 
 
-@router.post(
-        "/logout", name=f"auth:.logout"
-    )
-async def logout(
-        current_user: User = Depends(active_users)
-):
+@router.post("/logout", name=f"auth:.logout")
+async def logout(current_user: User = Depends(active_users)):
     auth = Authenticator([auth_backend], get_user_manager(current_user))
-    user_token = auth.current_user_token(
-        active=True
-    )
+    user_token = auth.current_user_token(active=True)
 
     await auth_backend.logout(auth_backend.get_strategy(), current_user, user_token)
 
     x = RedirectResponse("/login", status_code=status.HTTP_303_SEE_OTHER)
-    x.set_cookie(key="fastapiusersauth", value="", httponly=True, max_age=0, expires=0,
-                 secure=server_config["secure_only"])
+    x.set_cookie(
+        key="fastapiusersauth",
+        value="",
+        httponly=True,
+        max_age=0,
+        expires=0,
+        secure=server_config["secure_only"],
+    )
     return x

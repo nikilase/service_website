@@ -1,8 +1,8 @@
 import asyncio
 import subprocess
 
-from app.schema.services import Service
 from app.dependencies import services_list
+from app.schema.services import Service
 
 
 async def get_status(service: str):
@@ -11,9 +11,14 @@ async def get_status(service: str):
     command_return = ""
 
     try:
-        proc = await asyncio.create_subprocess_exec("systemctl", "--type=service", "status", service,
-                                                    stdout=asyncio.subprocess.PIPE,
-                                                    stderr=asyncio.subprocess.PIPE)
+        proc = await asyncio.create_subprocess_exec(
+            "systemctl",
+            "--type=service",
+            "status",
+            service,
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.PIPE,
+        )
         stdout, stderr = await proc.communicate()
         if stderr:
             print(stderr)
@@ -47,13 +52,18 @@ async def get_status(service: str):
 
 async def service_exists(service: str):
     if not Service.is_in_list(services_list, service):
-        #print(f"{service} not in list of services")
+        # print(f"{service} not in list of services")
         return False
 
     try:
-        proc = await asyncio.create_subprocess_exec("systemctl", "--type=service", "status", service,
-                                                    stdout=asyncio.subprocess.PIPE,
-                                                    stderr=asyncio.subprocess.PIPE)
+        proc = await asyncio.create_subprocess_exec(
+            "systemctl",
+            "--type=service",
+            "status",
+            service,
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.PIPE,
+        )
         stdout, stderr = await proc.communicate()
         if stderr:
             return False
@@ -74,12 +84,19 @@ async def service_handler(service_name, handle_type):
             case _:
                 print(f"Incorrect Command {handle_type}")
                 return
-        proc = await asyncio.create_subprocess_exec("sudo", "systemctl", command, service_name,
-                                                    stdout=asyncio.subprocess.PIPE,
-                                                    stderr=asyncio.subprocess.PIPE)
+        proc = await asyncio.create_subprocess_exec(
+            "sudo",
+            "systemctl",
+            command,
+            service_name,
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.PIPE,
+        )
         _, stderr = await proc.communicate()
         if stderr:
-            print(f"Cannot {handle_type} {service_name}: {stderr.decode('utf-8').strip()}")
+            print(
+                f"Cannot {handle_type} {service_name}: {stderr.decode('utf-8').strip()}"
+            )
     except subprocess.CalledProcessError as e:
         print(f"Cannot {handle_type} {service_name}: {e}")
     return

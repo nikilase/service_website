@@ -1,9 +1,8 @@
-from fastapi import Request, HTTPException, APIRouter
+from fastapi import APIRouter, HTTPException, Request
 
-from app.dependencies import services_list
 from app.controller.logs import get_last_logs
 from app.controller.overview import service_handler
-from app.dependencies import templates
+from app.dependencies import services_list, templates
 from app.schema.services import Service
 
 router = APIRouter()
@@ -28,4 +27,6 @@ async def service_api(action: str, service: str):
 async def print_last_log(request: Request, service: str):
     if Service.is_in_list(services_list, service):
         log = await get_last_logs(service)
-        return templates.TemplateResponse("log.html", {"request": request, "output": log})
+        return templates.TemplateResponse(
+            "log.html", {"request": request, "output": log}
+        )

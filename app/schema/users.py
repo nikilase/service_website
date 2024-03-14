@@ -2,12 +2,12 @@ from fastapi_users.schemas import BaseUser, BaseUserCreate, BaseUserUpdate
 
 
 class UserRead(BaseUser):
-	pass
+    pass
 
 
 class UserCreate(BaseUserCreate):
-	pass
+    pass
 
 
 class UserUpdate(BaseUserUpdate):
-	pass
+    pass
