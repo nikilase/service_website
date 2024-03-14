@@ -11,7 +11,7 @@ from app.dependencies import other_config
 from app.models.users.sqlite import get_user_db
 
 # ToDo: get more info on proper Secrets
-SECRET = other_config["SECRET"]
+SECRET = other_config["fastapi-secret"]
 
 
 class UserManager(UUIDIDMixin, BaseUserManager):
