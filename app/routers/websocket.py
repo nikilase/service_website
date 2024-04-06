@@ -1,6 +1,5 @@
 import asyncio
 import logging
-import time
 
 from fastapi import APIRouter, WebSocket
 
@@ -81,7 +80,7 @@ async def websocket_endpoint(websocket: WebSocket, service: str):
 
                 await websocket.send_text(log_txt)
             else:
-                time.sleep(0.5)
+                await asyncio.sleep(0.5)
     except Exception as e:
         print(f"Websocket Exception: {e}")
     finally:
