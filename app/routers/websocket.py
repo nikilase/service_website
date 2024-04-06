@@ -1,5 +1,6 @@
 import asyncio
 import logging
+import time
 
 from fastapi import APIRouter, WebSocket
 
@@ -14,9 +15,10 @@ async def websocket_endpoint(websocket: WebSocket, service: str):
     log_size = 20
     log_level = logging.INFO
     log_level_include_others = True
+    run = True
 
     async def read_websocket(ws: WebSocket):
-        nonlocal log_size, log_level, log_level_include_others
+        nonlocal log_size, log_level, log_level_include_others, run
         # ws.iter_json() endlessly waits for messages
         async for message in ws.iter_json():
             match message["type"]:
@@ -29,6 +31,8 @@ async def websocket_endpoint(websocket: WebSocket, service: str):
                 case "switch_log_level_inc":
                     # print(f"Received switch_log_level_inc {message['value']} {type(message['value'])}")
                     log_level_include_others = message["value"]
+                case "switch_run":
+                    run = message["value"]
 
     task = asyncio.create_task(read_websocket(websocket))
 
@@ -36,35 +40,48 @@ async def websocket_endpoint(websocket: WebSocket, service: str):
     #  to let journalctl do the sorting for me? Otherwise Number of entries won't work correctly
     try:
         while True:
-            await asyncio.sleep(1)
-            logs = await get_last_logs(service, log_size)
-            log_txt = ""
-            for log in logs.split("\n"):
-                if "DEBUG" in log:
-                    if log_level <= logging.DEBUG:
-                        log_txt += f'<span style="color: #60A5FA">{log}</span><br/>\n'
-                elif "INFO" in log:
-                    if log_level <= logging.INFO:
-                        log_txt += f'<span style="color: #22D3EE">{log}</span><br/>\n'
-                elif "WARNING" in log:
-                    if log_level <= logging.WARNING:
-                        log_txt += f'<span style="color: #FACC15">{log}</span><br/>\n'
-                elif "ERROR" in log:
-                    if log_level <= logging.ERROR:
-                        log_txt += f'<span style="color: #FB923C">{log}</span><br/>\n'
-                elif "CRITICAL" in log:
-                    if log_level <= logging.CRITICAL:
-                        log_txt += f'<span style="color: #F87171">{log}</span><br/>\n'
-                else:
-                    if log_level_include_others:
-                        if "systemd" in log:
+            if run:
+                await asyncio.sleep(1)
+                logs = await get_last_logs(service, log_size)
+                log_txt = ""
+                for log in logs.split("\n"):
+                    if "DEBUG" in log:
+                        if log_level <= logging.DEBUG:
                             log_txt += (
-                                f'<span style="color: #4ADE80">{log}</span><br/>\n'
+                                f'<span style="color: #60A5FA">{log}</span><br/>\n'
                             )
-                        else:
-                            log_txt += f"{log}<br/>\n"
+                    elif "INFO" in log:
+                        if log_level <= logging.INFO:
+                            log_txt += (
+                                f'<span style="color: #22D3EE">{log}</span><br/>\n'
+                            )
+                    elif "WARNING" in log:
+                        if log_level <= logging.WARNING:
+                            log_txt += (
+                                f'<span style="color: #FACC15">{log}</span><br/>\n'
+                            )
+                    elif "ERROR" in log:
+                        if log_level <= logging.ERROR:
+                            log_txt += (
+                                f'<span style="color: #FB923C">{log}</span><br/>\n'
+                            )
+                    elif "CRITICAL" in log:
+                        if log_level <= logging.CRITICAL:
+                            log_txt += (
+                                f'<span style="color: #F87171">{log}</span><br/>\n'
+                            )
+                    else:
+                        if log_level_include_others:
+                            if "systemd" in log:
+                                log_txt += (
+                                    f'<span style="color: #4ADE80">{log}</span><br/>\n'
+                                )
+                            else:
+                                log_txt += f"{log}<br/>\n"
 
-            await websocket.send_text(log_txt)
+                await websocket.send_text(log_txt)
+            else:
+                time.sleep(0.5)
     except Exception as e:
         print(f"Websocket Exception: {e}")
     finally:
