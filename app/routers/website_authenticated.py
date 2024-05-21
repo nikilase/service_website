@@ -1,3 +1,5 @@
+import time
+
 from fastapi import APIRouter, Request
 
 from app.controller.overview import get_status
@@ -10,9 +12,12 @@ router = APIRouter()
 @router.get("/log_overview")
 async def root(request: Request):
     html_services_data: list[object] = []
+    t0 = time.time()
     for service in services_list:
+        t1 = time.time()
         status = await get_status(service.service_name)
-
+        print(f"t1 {time.time() - t1}")
+        t1 = time.time()
         if status is None:
             service.status = "not found"
             service.status_class = "service_not_found"
@@ -44,6 +49,7 @@ async def root(request: Request):
             service.enabled = status[2]
 
         html_services_data.append(service.dict())
+    print(f"t0 {time.time() - t0}")
 
     return templates.TemplateResponse(
         "root.html", {"request": request, "services": html_services_data}
