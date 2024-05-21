@@ -1,4 +1,5 @@
 import logging
+import time
 
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 from fastapi.responses import RedirectResponse
@@ -35,25 +36,30 @@ async def login(
     user_manager: BaseUserManager[models.UP, models.ID] = Depends(get_user_manager),
     strategy: Strategy[models.UP, models.ID] = Depends(get_jwt_strategy),
 ):
+    t = time.time()
     logging.getLogger("passlib").setLevel(logging.ERROR)
     errors = []
     user = await user_manager.authenticate(credentials)
-
+    print(f"T1 = {time.time() - t}")
+    t = time.time()
     if user is None or not user.is_active:
         errors.append("User does not exists or is not active")
         return templates.TemplateResponse(
             "login.html", {"request": request, "errors": errors}
         )
-
+    print(f"T2 = {time.time() - t}")
+    t = time.time()
     requires_verification = False
     if requires_verification and not user.is_verified:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=ErrorCode.LOGIN_USER_NOT_VERIFIED,
         )
-
+    print(f"T3 = {time.time() - t}")
+    t = time.time()
     auth_token = await strategy.write_token(user)
-
+    print(f"T4 = {time.time() - t}")
+    t = time.time()
     resp = RedirectResponse("/log_overview", status_code=status.HTTP_303_SEE_OTHER)
     resp.set_cookie(
         key="fastapiusersauth",
@@ -61,7 +67,7 @@ async def login(
         httponly=True,
         secure=server_config["secure_only"],
     )
-
+    print(f"T5 = {time.time() - t}")
     return resp
 
 
