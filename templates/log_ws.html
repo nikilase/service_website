@@ -50,6 +50,16 @@
             </div>
 
 
+            <!-- Enable Log -->
+            <div style="width: fit-content;padding-right:1em;">
+                <label for="enable_log">Enable Log:</label>
+            </div>
+
+            <div class="form-check form-switch" style="width: fit-content;padding-right:1em;">
+                <input class="form-check-input" type="checkbox" role="switch" id="enable_log" checked/>
+            </div>
+
+
             <!-- SUBMIT -->
             <div style="width:fit-content; padding-right:1em;">
             <button type="button" class="btn btn-primary btn-sm" onclick="send_form()">
@@ -103,6 +113,7 @@
                 const log_size = document.getElementById("log_size");
                 const log_level = document.getElementById("log_level");
                 const log_level_inc = document.getElementById("log_level_inc");
+                const enable_log = document.getElementById("enable_log");
 
                 ws_log.send(JSON.stringify({
                     type: "switch_log_size",
@@ -115,6 +126,10 @@
                 ws_log.send(JSON.stringify({
                     type: "switch_log_level_inc",
                     value: log_level_inc.checked
+                }));
+                ws_log.send(JSON.stringify({
+                    type: "switch_run",
+                    value: enable_log.checked
                 }));
             }
         </script>
