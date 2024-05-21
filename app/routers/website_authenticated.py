@@ -13,11 +13,11 @@ router = APIRouter()
 async def root(request: Request):
     html_services_data: list[object] = []
     t0 = time.time()
+    # ToDo: make the get_status call async and do all of them at once using asyncio
     for service in services_list:
         t1 = time.time()
         status = await get_status(service.service_name)
         print(f"t1 {time.time() - t1}")
-        t1 = time.time()
         if status is None:
             service.status = "not found"
             service.status_class = "service_not_found"
