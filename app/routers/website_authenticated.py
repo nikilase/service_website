@@ -1,3 +1,4 @@
+import asyncio
 import time
 
 from fastapi import APIRouter, Request
@@ -13,11 +14,15 @@ router = APIRouter()
 async def root(request: Request):
     html_services_data: list[object] = []
     t0 = time.time()
-    # ToDo: make the get_status call async and do all of them at once using asyncio
-    for service in services_list:
-        t1 = time.time()
-        status = await get_status(service.service_name)
-        print(f"t1 {time.time() - t1}")
+
+    coros = [get_status(service.service_name) for service in services_list]
+    results = await asyncio.gather(*coros)
+
+    print(f"Await Time {time.time() - t0}")
+
+    for service_index, service in enumerate(services_list):
+        status = results[service_index]
+
         if status is None:
             service.status = "not found"
             service.status_class = "service_not_found"
@@ -49,7 +54,8 @@ async def root(request: Request):
             service.enabled = status[2]
 
         html_services_data.append(service.dict())
-    print(f"t0 {time.time() - t0}")
+
+    print(f"Total Refresh Time {time.time() - t0}")
 
     return templates.TemplateResponse(
         "root.html", {"request": request, "services": html_services_data}
