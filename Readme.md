@@ -41,3 +41,7 @@ You can also filter that only logs above a certain log level will be shown.
 > [!IMPORTANT]
 > It is strongly advised to use HTTPS for this website!
 > As we currently do not support providing SSL Certs, you need to use a reverse proxy to supply the cert like NGINX!
+
+> [!IMPORTANT]
+> Root access is required to start and stop services.
+> Please run as root user in systemd service!
