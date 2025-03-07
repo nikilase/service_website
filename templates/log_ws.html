@@ -2,6 +2,40 @@
 {% block navbar %}{% endblock %}
 {% block content %}
 
+    <style>
+        html, body {
+            height: 100%;
+            width: 100%;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+        }
+        .container-fluid {
+            display: flex;
+            flex-direction: column;
+            height: 100vh; /* Full viewport height */
+            width: 100%;  /* Full viewport width */
+        }
+
+        #logs-container {
+            flex-grow: 1; /* Allows it to take up remaining space */
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+        }
+
+        #logs {
+            flex-grow: 1; /* Makes it expand to fill available space */
+            overflow-y: auto;
+            min-height: 0; /* Important for flexbox scrolling */
+            width: 100%;
+        }
+    </style>
+
+
+    <div class="container-fluid">
+
         <!-- HEADER -->
         <div class="flex items-center py-2 px-3">
             <h1 class="text-3xl text-slate-300">Live Log for {{service}}</h1>
@@ -71,7 +105,7 @@
         </form>
 
         <!-- LOG TEXT -->
-        <div class="flex items-center py-2 px-3">
+        <div id="logs-container" class="flex items-center py-3 px-3">
             <div
                 id="logs"
                 class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
@@ -80,57 +114,58 @@
             reading logs...
             </div>
         </div>
+    </div>
 
-        <script>
-            let loc = window.location, new_uri;
-            if (loc.protocol === "https:") {
-                new_uri = "wss:";
-            } else {
-                new_uri = "ws:";
-            }
-            new_uri += "//" + loc.host;
-            new_uri += "/ws/live_log/{{service}}";
+    <script>
+        let loc = window.location, new_uri;
+        if (loc.protocol === "https:") {
+            new_uri = "wss:";
+        } else {
+            new_uri = "ws:";
+        }
+        new_uri += "//" + loc.host;
+        new_uri += "/ws/live_log/{{service}}";
 
-            let ws_log = new WebSocket(new_uri);
+        let ws_log = new WebSocket(new_uri);
 
-            ws_log.onmessage = function (event) {
-                console.log(event.data);
+        ws_log.onmessage = function (event) {
+            console.log(event.data);
 
-                let logs = document.getElementById("logs");
-                logs.innerHTML = event.data;
-            };
+            let logs = document.getElementById("logs");
+            logs.innerHTML = event.data;
+        };
 
-            function switch_log_size()
-            {
-                ws_log.send(JSON.stringify({
-                    type: "switch_log_size",
-                    value: 1
-                }));
-            }
-            function send_form()
-            {
+        function switch_log_size()
+        {
+            ws_log.send(JSON.stringify({
+                type: "switch_log_size",
+                value: 1
+            }));
+        }
+        function send_form()
+        {
 
-                const log_size = document.getElementById("log_size");
-                const log_level = document.getElementById("log_level");
-                const log_level_inc = document.getElementById("log_level_inc");
-                const enable_log = document.getElementById("enable_log");
+            const log_size = document.getElementById("log_size");
+            const log_level = document.getElementById("log_level");
+            const log_level_inc = document.getElementById("log_level_inc");
+            const enable_log = document.getElementById("enable_log");
 
-                ws_log.send(JSON.stringify({
-                    type: "switch_log_size",
-                    value: log_size.value
-                }));
-                ws_log.send(JSON.stringify({
-                    type: "switch_log_level",
-                    value: log_level.value
-                }));
-                ws_log.send(JSON.stringify({
-                    type: "switch_log_level_inc",
-                    value: log_level_inc.checked
-                }));
-                ws_log.send(JSON.stringify({
-                    type: "switch_run",
-                    value: enable_log.checked
-                }));
-            }
-        </script>
+            ws_log.send(JSON.stringify({
+                type: "switch_log_size",
+                value: log_size.value
+            }));
+            ws_log.send(JSON.stringify({
+                type: "switch_log_level",
+                value: log_level.value
+            }));
+            ws_log.send(JSON.stringify({
+                type: "switch_log_level_inc",
+                value: log_level_inc.checked
+            }));
+            ws_log.send(JSON.stringify({
+                type: "switch_run",
+                value: enable_log.checked
+            }));
+        }
+    </script>
 {% endblock %}
