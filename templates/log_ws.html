@@ -2,15 +2,37 @@
 {% block navbar %}{% endblock %}
 {% block content %}
 
+    <style>
+        body, html {
+            height: 100%;
+            margin: 0;
+        }
+
+        .flex-container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        .header {
+            flex: 0 1 auto;
+        }
+
+        .logs-container {
+            flex: 1 1 auto;
+            overflow-y: auto;
+        }
+    </style>
+    <div class="flex-container">
         <!-- HEADER -->
-        <div class="flex items-center py-2 px-3">
+        <div class="header flex items-center py-2 px-3">
             <h1 class="text-3xl text-slate-300">Live Log for {{service}}</h1>
         </div>
         <br>
 
         <!-- Form for settings -->
-        <form id="settings_form" onSubmit="send_form();return false;">
-        <div class="flex items-center py-2 px-3" style="align-items: center; display: flex; flex-wrap: wrap">
+        <form id="settings_form" onSubmit="send_form();return false;" class="header">
+        <div class="logs-container flex items-center py-2 px-3" >
 
 
             <!-- LOG LEVEL -->
@@ -71,11 +93,11 @@
         </form>
 
         <!-- LOG TEXT -->
-        <div class="flex items-center py-2 px-3">
+        <div class="logs-container flex items-center py-2 px-3">
             <div
                 id="logs"
                 class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                style="overflow-y: auto;height: 450px;"
+
             >
             reading logs...
             </div>
